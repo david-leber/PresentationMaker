@@ -47,6 +47,7 @@ for d in data_frames:
     snsPlot = sns.lineplot(data=d['df'])
     snsFig = snsPlot.get_figure()
     snsFig.savefig(imageFileName, dpi=PNG_RESOLUTION)
+    plt.show()
     
     outputText = template.render(df=d['df'],
             interest_rate=d['interest_rate'],
