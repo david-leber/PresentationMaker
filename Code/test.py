@@ -43,9 +43,10 @@ for d in data_frames:
     newFileName = newFileNameBase+".html"
     imageFileName = newFileNameBase+'png.png'
     
-    plt.figure()
+    fig = plt.figure()
     snsPlot = sns.lineplot(data=d['df'])
-    snsPlot.get_figure().savefig(imageFileName, dpi=PNG_RESOLUTION)
+    snsFig = snsPlot.get_figure()
+    snsFig.savefig(imageFileName, dpi=PNG_RESOLUTION)
     
     outputText = template.render(df=d['df'],
             interest_rate=d['interest_rate'],
