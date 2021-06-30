@@ -8,7 +8,14 @@ Created on Tue Jun 29 21:54:53 2021
 import pandas as pd
 import pdfkit
 import jinja2
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
 
+DO_CLEAN_UP = True
+PNG_RESOLUTION = 100
+
+print("Creating the dataframes.")
 interest_rates = [i*.01 for i in range(1,11)]
 initial_account_sizes = [100, 500, 20000, 50000]
 data_frames = []
@@ -21,20 +28,43 @@ for interest_rate in interest_rates:
     data_frames.append({'df':df,
         'interest_rate':interest_rate})
     
-
+print("Reading in the Jinja template.")
 templateLoader = jinja2.FileSystemLoader(searchpath="../Templates/")
 templateEnv = jinja2.Environment(loader=templateLoader)
 TEMPLATE_FILE = "test.html"
 template = templateEnv.get_template(TEMPLATE_FILE)
 
+print("Generating the HTML files.")
 filesGenerated = []
+tempFilesGenerated = []
 for d in data_frames:
+    
+    newFileNameBase = "../Output/"+str(int(d['interest_rate'] * 100))
+    newFileName = newFileNameBase+".html"
+    imageFileName = newFileNameBase+'png.png'
+    
+    plt.figure()
+    snsPlot = sns.lineplot(data=d['df'])
+    snsPlot.get_figure().savefig(imageFileName, dpi=PNG_RESOLUTION)
+    
     outputText = template.render(df=d['df'],
-            interest_rate=d['interest_rate'])
-    newFileName = "../Output/"+str(int(d['interest_rate'] * 100))+".html"
+            interest_rate=d['interest_rate'],
+            imageSource=imageFileName)
     html_file = open(newFileName, 'w')
     html_file.write(outputText)
     html_file.close()
     filesGenerated.append(newFileName)
+    tempFilesGenerated.append(newFileName)
+    tempFilesGenerated.append(imageFileName)
 
-pdfkit.from_file(filesGenerated, '../Output/test.pdf')
+print("Generating the PDF.")
+
+options = {
+  "enable-local-file-access": None
+}
+pdfkit.from_file(filesGenerated, '../Output/test.pdf', options=options)
+
+if DO_CLEAN_UP:
+    print("Cleaning up temporary files.")
+    for file in tempFilesGenerated:
+        os.remove(file)
