@@ -9,6 +9,7 @@ import jinja2
 from jinja2 import Template
 from os import path
 from datetime import datetime
+from Field import Field
 
 
 class Page:
@@ -20,13 +21,13 @@ class Page:
     def __init__(self):
 
         self.template = None
-        self.fields = {}
+        self.fields = []
 
         return
 
-    def addField(self, fields: dict) -> None:
+    def addField(self, field: Field) -> None:
         """Add one ore more fields to the Page."""
-        self.fields = {**self.fields, **fields}
+        self.fields.append(field)
 
     def __loadTemplate(templateName: str) -> Template:
         templateLoader = jinja2.FileSystemLoader(
@@ -41,9 +42,7 @@ class Page:
         testHTML = Page.__loadTemplate("BasicTemplate")
         newPage = Page()
         newPage.template = testHTML
-        newPage.addField({
-            "css": "body {background-color: gray}",
-            "body": "Hello, World!"})
+        newPage.addField(Field.makeBasicField())
 
         return newPage
 
@@ -57,7 +56,15 @@ class Page:
             name = datetime.utcnow().strftime('%Y-%m-%d %H%M%S%f')[:-3]
 
         newFileName = path.join(Page.HTML_LOCATION, name+".html")
-        htmlCode = self.template.render(**self.fields)
+        
+        combinedMessage = ""
+        for field in self.fields:
+            combinedMessage += field.getHTML()
+        
+        cssCode = 'body {background-color: gray}'
+        
+        htmlCode = self.template.render(body=combinedMessage,
+                                        css=cssCode)
         html_file = open(newFileName, 'w')
         html_file.write(htmlCode)
         html_file.close()
