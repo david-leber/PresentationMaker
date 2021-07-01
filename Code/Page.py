@@ -8,6 +8,7 @@ Created on Tue Jun 29 21:52:08 2021.
 import jinja2
 from jinja2 import Template
 from os import path
+from datetime import datetime
 
 
 class Page:
@@ -46,13 +47,16 @@ class Page:
 
         return newPage
 
-    def render(self, fileName: str) -> str:
+    def render(self, name: str = None) -> str:
         """
         Render the page to an HTML file.
 
         Returns that file's address
         """
-        newFileName = path.join(Page.HTML_LOCATION, fileName+".html")
+        if name is None:
+            name = datetime.utcnow().strftime('%Y-%m-%d %H%M%S%f')[:-3]
+
+        newFileName = path.join(Page.HTML_LOCATION, name+".html")
         htmlCode = self.template.render(**self.fields)
         html_file = open(newFileName, 'w')
         html_file.write(htmlCode)
@@ -61,7 +65,8 @@ class Page:
         return newFileName
 
 
-newPage = Page.makeTestPage()
-fileLoc = newPage.render("testHTML")
-print(newPage.fields)
-print(fileLoc)
+if __name__ == "__main__":
+    newPage = Page.makeTestPage()
+    fileLoc = newPage.render("testHTML")
+    print(newPage.fields)
+    print(fileLoc)
