@@ -5,21 +5,63 @@ Created on Tue Jun 29 21:52:08 2021.
 @author: david
 """
 
+import jinja2
+from jinja2 import Template
+from os import path
+
 
 class Page:
     """Represents one page of a document or presentation."""
 
-    def __init__():
-        pass
+    TEMPLATE_LOCATION = "../Templates"
+    HTML_LOCATION = "../Output"
+
+    def __init__(self):
+
+        self.template = None
+        self.fields = {}
+
+        return
+
+    def addField(self, fields: dict) -> None:
+        """Add one ore more fields to the Page."""
+        self.fields = {**self.fields, **fields}
+
+    def __loadTemplate(templateName: str) -> Template:
+        templateLoader = jinja2.FileSystemLoader(
+            searchpath=Page.TEMPLATE_LOCATION)
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template = templateEnv.get_template(templateName+".html")
+
+        return template
 
     def makeTestPage():
         """Create a test page object."""
-        pass
+        testHTML = Page.__loadTemplate("BasicTemplate")
+        newPage = Page()
+        newPage.template = testHTML
+        newPage.addField({
+            "css": "body {background-color: gray}",
+            "body": "Hello, World!"})
 
-    def render() -> str:
+        return newPage
+
+    def render(self, fileName: str) -> str:
         """
         Render the page to an HTML file.
 
         Returns that file's address
         """
-        pass
+        newFileName = path.join(Page.HTML_LOCATION, fileName+".html")
+        htmlCode = self.template.render(**self.fields)
+        html_file = open(newFileName, 'w')
+        html_file.write(htmlCode)
+        html_file.close()
+
+        return newFileName
+
+
+newPage = Page.makeTestPage()
+fileLoc = newPage.render("testHTML")
+print(newPage.fields)
+print(fileLoc)
