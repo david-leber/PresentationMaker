@@ -17,11 +17,16 @@ class Page:
 
     TEMPLATE_LOCATION = "../Templates"
     HTML_LOCATION = "../Output"
+    
+    LANDSCAPE = 'Landscape'
+    PORTRAIT = 'Portrait'
 
     def __init__(self):
 
         self.template = None
         self.fields = []
+        self.css = {}
+        self.head = ''
 
         return
 
@@ -63,8 +68,10 @@ class Page:
         
         cssCode = 'body {background-color: gray}'
         
-        htmlCode = self.template.render(body=combinedMessage,
-                                        css=cssCode)
+        htmlCode = self.template.render(
+            head=self.head,
+            body=combinedMessage,
+            css=cssCode)
         html_file = open(newFileName, 'w')
         html_file.write(htmlCode)
         html_file.close()
@@ -74,6 +81,7 @@ class Page:
 
 if __name__ == "__main__":
     newPage = Page.makeTestPage()
+    newPage.setOrientation(Page.LANDSCAPE)
     fileLoc = newPage.render("testHTML")
     print(newPage.fields)
     print(fileLoc)

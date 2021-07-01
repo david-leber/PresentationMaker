@@ -18,6 +18,12 @@ class Document:
 
     def __init__(self):
         self.pages = []
+        self.options = {
+          "enable-local-file-access": None,
+          'quiet': '',
+          'page-size': 'Letter',
+          'orientation': 'Landscape'
+        }
         return
 
     def addPage(self, page: Page):
@@ -27,9 +33,6 @@ class Document:
 
     def toPDF(self, name: str = None):
         """Render the document to PDF."""
-        options = {
-          "enable-local-file-access": None
-        }
         if name is None:
             name = datetime.utcnow().strftime('%Y-%m-%d %H%M%S%f')[:-3]
 
@@ -39,7 +42,7 @@ class Document:
         for page in self.pages:
             htmlFiles.append(page.render())
 
-        pdfkit.from_file(htmlFiles, newFileName, options=options)
+        pdfkit.from_file(htmlFiles, newFileName, options=self.options)
         return
 
 
